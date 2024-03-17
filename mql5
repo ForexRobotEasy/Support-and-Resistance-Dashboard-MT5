@@ -1,0 +1,99 @@
+
+//+------------------------------------------------------------------+
+//|                                                     Support and Resistance Dashboard MT5                      |
+//|                                                   forexroboteasy.com                                             |
+//|                                                      Forex Robot Easy Team                                         |
+//+------------------------------------------------------------------+
+#property strict
+
+// Define constants
+#define DEFAULT_SYMBOLS 'EURUSD, GBPUSD, USDJPY' // List of symbols to scan
+#define DEFAULT_TIMEFRAMES PERIOD_M1, PERIOD_M5, PERIOD_M15, PERIOD_H1, PERIOD_H4, PERIOD_D1, PERIOD_W1 // List of timeframes to scan
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Create the dashboard window
+    if(!CreateDashboardWindow())
+    {
+        Print('Failed to create the dashboard window');
+        return INIT_FAILED;
+    }
+    
+    // Subscribe to symbol and timeframe events
+    for(int i=0; i<SymbolsTotal(); i++)
+    {
+        string symbol = SymbolName(i);
+        for(int j=0; j<ArraySize(DEFAULT_TIMEFRAMES); j++)
+        {
+            ENUM_TIMEFRAMES timeframe = DEFAULT_TIMEFRAMES[j];
+            ChartIndicatorAdd(0, iCustom(NULL, timeframe, 'SupportResistance', 0, 0));
+        }
+    }
+    
+    return INIT_SUCCEEDED;
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator iteration function                              |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+{
+    // Update support and resistance zones
+    for(int i=0; i<SymbolsTotal(); i++)
+    {
+        string symbol = SymbolName(i);
+        for(int j=0; j<ArraySize(DEFAULT_TIMEFRAMES); j++)
+        {
+            ENUM_TIMEFRAMES timeframe = DEFAULT_TIMEFRAMES[j];
+            double support = iCustom(NULL, timeframe, 'SupportResistance', 1, 0);
+            double resistance = iCustom(NULL, timeframe, 'SupportResistance', 2, 0);
+            
+            // Check if price is interacting with support or resistance zone
+            if(close[0] >= support && close[0] <= resistance)
+            {
+                Alert('Price is interacting with support and resistance zones on ', symbol, ' ', EnumToString(timeframe));
+            }
+        }
+    }
+    
+    return rates_total;
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to create the dashboard window                    |
+//+------------------------------------------------------------------+
+bool CreateDashboardWindow()
+{
+    // TODO: Code to create the dashboard window
+    
+    return true;
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to display the information on the dashboard       |
+//+------------------------------------------------------------------+
+void DisplayDashboardInformation(const string symbol,
+                                 const ENUM_TIMEFRAMES timeframe,
+                                 const double support,
+                                 const double resistance)
+{
+    // TODO: Code to display the information on the dashboard
+    
+    // Example code to display information in the Experts tab
+    Print('Symbol: ', symbol);
+    Print('Timeframe: ', EnumToString(timeframe));
+    Print('Support: ', support);
+    Print('Resistance: ', resistance);
+}
